@@ -30,9 +30,9 @@ func (j *JWTMiddlewareImpl) Middleware(next http.Handler) http.Handler {
 		if sliceutils.Contains(urlconstants.NO_JWT(), r.RequestURI) {
 			next.ServeHTTP(w, r)
 		} else if sliceutils.Contains(urlconstants.AUTH_ALLOWED_REFRESH_JWT(), r.RequestURI) {
-			j.middlewareForAccessToken(next)
+			j.middlewareForAccessToken(next).ServeHTTP(w, r)
 		} else {
-			j.middlewareForNormal(next)
+			j.middlewareForNormal(next).ServeHTTP(w, r)
 		}
 	})
 }
