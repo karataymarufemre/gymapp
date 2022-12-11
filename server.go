@@ -2,19 +2,21 @@ package main
 
 import (
 	"log"
-	"os"
 	"net/http"
+	"os"
 	"workspace/controller"
-	"workspace/logging"
+	"workspace/middleware"
 )
 
 type Server struct {
 	userController controller.UserController
+	jwtMiddleware  middleware.JWTMiddleware
 }
 
-func NewServer(userController controller.UserController) *Server {
+func NewServer(userController controller.UserController, jwtMiddleware middleware.JWTMiddleware) *Server {
 	return &Server{
 		userController: userController,
+		jwtMiddleware:  jwtMiddleware,
 	}
 }
 
@@ -22,8 +24,9 @@ func (s *Server) Handler() http.Handler {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/signup", s.userController.SignUp)
-	
-	return logging.Logger(os.Stderr, mux)
+	mux.HandleFunc("/signin", s.userController.SignIn)
+	mux.Handle("/refresh-token", s.jwtMiddleware.MiddlewareForAccessToken(http.HandlerFunc(s.userController.GetAccessToken)))
+	return middleware.Logger(os.Stderr, mux)
 }
 
 func (s *Server) Run() {
@@ -31,8 +34,8 @@ func (s *Server) Run() {
 		Addr:    ":" + os.Getenv("APP_PORT"),
 		Handler: s.Handler(),
 	}
-	log.Println("Application starting in port :%s ...", os.Getenv("APP_PORT"))
-	
+	log.Println("Application starting in port: ", os.Getenv("APP_PORT"))
+
 	log.Fatal(httpServer.ListenAndServe())
-	
+
 }

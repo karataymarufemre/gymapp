@@ -1,4 +1,4 @@
-package logging
+package middleware
 
 import (
 	"fmt"
@@ -8,7 +8,6 @@ import (
 	"strings"
 	"time"
 )
-
 
 // Logs incoming requests, including response status.
 func Logger(out io.Writer, h http.Handler) http.Handler {
@@ -27,6 +26,7 @@ func Logger(out io.Writer, h http.Handler) http.Handler {
 			o.status,
 			o.written,
 			r.Referer(),
+			"smthn",
 		)
 	})
 }

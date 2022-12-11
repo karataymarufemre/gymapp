@@ -1,7 +1,10 @@
 package model
 
-import ()
-
 type SaveResponse struct {
-	ID int64 `json:"id"`
+	Success bool   `json:"success"`
+	ID      uint64 `json:"id"`
+}
+
+type TokenResponse struct {
+	Token string `json:"token"`
 }
